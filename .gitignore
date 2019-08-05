@@ -30,6 +30,9 @@ build/
 local.properties
 *.iml
 
+android/gradle/wrapper/gradle-wrapper.jar
+
+
 # Visual Studio Code
 #
 .vscode/
