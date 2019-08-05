@@ -15,7 +15,7 @@ export const CheckInModelBase = MSTGQLObject
   .named('CheckIn')
   .props({
     __typename: types.optional(types.literal("CheckIn"), "CheckIn"),
-    _id: types.identifier,
+    id: types.identifier,
     by: types.maybeNull(types.string),
     long: types.maybeNull(types.number),
     lat: types.maybeNull(types.number),
@@ -34,7 +34,7 @@ export const CheckInModelBase = MSTGQLObject
   }))
 
 export class CheckInModelSelector extends QueryBuilder {
-  get _id() { return this.__attr(`_id`) }
+  get id() { return this.__attr(`id`) }
   get by() { return this.__attr(`by`) }
   get long() { return this.__attr(`long`) }
   get lat() { return this.__attr(`lat`) }
@@ -50,4 +50,4 @@ export function selectFromCheckIn() {
   return new CheckInModelSelector()
 }
 
-export const checkInModelPrimitives = selectFromCheckIn()._id.by.long.lat.location.time.date.ticket.project.action.createdAt
+export const checkInModelPrimitives = selectFromCheckIn().by.long.lat.location.time.date.ticket.project.action.createdAt

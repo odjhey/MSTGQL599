@@ -15,7 +15,7 @@ export const ActivityLogModelBase = MSTGQLObject
   .named('ActivityLog')
   .props({
     __typename: types.optional(types.literal("ActivityLog"), "ActivityLog"),
-    _id: types.identifier,
+    id: types.identifier,
     workHours: types.maybeNull(types.string),
     from: types.maybeNull(types.string),
     to: types.maybeNull(types.string),
@@ -26,6 +26,7 @@ export const ActivityLogModelBase = MSTGQLObject
     projects: types.maybeNull(types.string),
     status: types.maybeNull(types.string),
     createdAt: types.maybeNull(types.string),
+    ticketID: types.maybeNull(types.string),
   })
   .views(self => ({
     get store() {
@@ -34,7 +35,7 @@ export const ActivityLogModelBase = MSTGQLObject
   }))
 
 export class ActivityLogModelSelector extends QueryBuilder {
-  get _id() { return this.__attr(`_id`) }
+  get id() { return this.__attr(`id`) }
   get workHours() { return this.__attr(`workHours`) }
   get from() { return this.__attr(`from`) }
   get to() { return this.__attr(`to`) }
@@ -45,9 +46,10 @@ export class ActivityLogModelSelector extends QueryBuilder {
   get projects() { return this.__attr(`projects`) }
   get status() { return this.__attr(`status`) }
   get createdAt() { return this.__attr(`createdAt`) }
+  get ticketID() { return this.__attr(`ticketID`) }
 }
 export function selectFromActivityLog() {
   return new ActivityLogModelSelector()
 }
 
-export const activityLogModelPrimitives = selectFromActivityLog()._id.workHours.from.to.location.completionRate.dateToday.remarks.projects.status.createdAt
+export const activityLogModelPrimitives = selectFromActivityLog().workHours.from.to.location.completionRate.dateToday.remarks.projects.status.createdAt.ticketID

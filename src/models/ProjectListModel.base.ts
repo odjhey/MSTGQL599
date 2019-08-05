@@ -15,7 +15,7 @@ export const ProjectListModelBase = MSTGQLObject
   .named('ProjectList')
   .props({
     __typename: types.optional(types.literal("ProjectList"), "ProjectList"),
-    _id: types.identifier,
+    id: types.identifier,
     projname: types.maybeNull(types.string),
   })
   .views(self => ({
@@ -25,11 +25,11 @@ export const ProjectListModelBase = MSTGQLObject
   }))
 
 export class ProjectListModelSelector extends QueryBuilder {
-  get _id() { return this.__attr(`_id`) }
+  get id() { return this.__attr(`id`) }
   get projname() { return this.__attr(`projname`) }
 }
 export function selectFromProjectList() {
   return new ProjectListModelSelector()
 }
 
-export const projectListModelPrimitives = selectFromProjectList()._id.projname
+export const projectListModelPrimitives = selectFromProjectList().projname

@@ -20,11 +20,10 @@ const App = () => {
   }
 
   if (store.sortedTickets.length > 0) {
-    console.log("store", store.sortedTickets);
     return (
       <View>
         {store.sortedTickets.map((item, i) => (
-          <Text key={i}>{item.simpleValue}</Text>
+          <Text key={i}>{item.ticketname}</Text>
         ))}
       </View>
     );

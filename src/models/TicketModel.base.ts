@@ -15,7 +15,7 @@ export const TicketModelBase = MSTGQLObject
   .named('Ticket')
   .props({
     __typename: types.optional(types.literal("Ticket"), "Ticket"),
-    _id: types.identifier,
+    id: types.identifier,
     projname: types.maybeNull(types.string),
     ticketname: types.maybeNull(types.string),
     date_start: types.maybeNull(types.string),
@@ -32,7 +32,7 @@ export const TicketModelBase = MSTGQLObject
   }))
 
 export class TicketModelSelector extends QueryBuilder {
-  get _id() { return this.__attr(`_id`) }
+  get id() { return this.__attr(`id`) }
   get projname() { return this.__attr(`projname`) }
   get ticketname() { return this.__attr(`ticketname`) }
   get date_start() { return this.__attr(`date_start`) }
@@ -46,4 +46,4 @@ export function selectFromTicket() {
   return new TicketModelSelector()
 }
 
-export const ticketModelPrimitives = selectFromTicket()._id.projname.ticketname.date_start.date_end.man_days.completion_rate.remarks.status
+export const ticketModelPrimitives = selectFromTicket().projname.ticketname.date_start.date_end.man_days.completion_rate.remarks.status

@@ -6,10 +6,6 @@ import { MSTGQLStore, configureStoreMixin, QueryOptions } from "mst-gql"
 
 import { UserModel } from "./UserModel"
 import { userModelPrimitives, UserModelSelector } from "./UserModel.base"
-import { PostModel } from "./PostModel"
-import { postModelPrimitives, PostModelSelector } from "./PostModel.base"
-import { CommentModel } from "./CommentModel"
-import { commentModelPrimitives, CommentModelSelector } from "./CommentModel.base"
 import { ListTestModel } from "./ListTestModel"
 import { listTestModelPrimitives, ListTestModelSelector } from "./ListTestModel.base"
 import { ActivityLogModel } from "./ActivityLogModel"
@@ -24,20 +20,20 @@ import { CheckInModel } from "./CheckInModel"
 import { checkInModelPrimitives, CheckInModelSelector } from "./CheckInModel.base"
 import { SimpleModel } from "./SimpleModel"
 import { simpleModelPrimitives, SimpleModelSelector } from "./SimpleModel.base"
-import { PostSubscriptionPayloadModel } from "./PostSubscriptionPayloadModel"
-import { postSubscriptionPayloadModelPrimitives, PostSubscriptionPayloadModelSelector } from "./PostSubscriptionPayloadModel.base"
-import { CommentSubscriptionPayloadModel } from "./CommentSubscriptionPayloadModel"
-import { commentSubscriptionPayloadModelPrimitives, CommentSubscriptionPayloadModelSelector } from "./CommentSubscriptionPayloadModel.base"
 
-import { MutationType } from "./MutationTypeEnum"
 
 /**
 * Store, managing, among others, all the objects received through graphQL
 */
 export const RootStoreBase = MSTGQLStore
   .named("RootStore")
-  .extend(configureStoreMixin([['User', () => UserModel], ['Post', () => PostModel], ['Comment', () => CommentModel], ['ListTest', () => ListTestModel], ['ActivityLog', () => ActivityLogModel], ['ProjectList', () => ProjectListModel], ['Leave', () => LeaveModel], ['Ticket', () => TicketModel], ['CheckIn', () => CheckInModel], ['Simple', () => SimpleModel], ['PostSubscriptionPayload', () => PostSubscriptionPayloadModel], ['CommentSubscriptionPayload', () => CommentSubscriptionPayloadModel]], ['Simple']))
+  .extend(configureStoreMixin([['User', () => UserModel], ['ListTest', () => ListTestModel], ['ActivityLog', () => ActivityLogModel], ['ProjectList', () => ProjectListModel], ['Leave', () => LeaveModel], ['Ticket', () => TicketModel], ['CheckIn', () => CheckInModel], ['Simple', () => SimpleModel]], ['ActivityLog', 'ProjectList', 'Leave', 'Ticket', 'CheckIn', 'Simple']))
   .props({
+    activitylogs: types.optional(types.map(types.late(() => ActivityLogModel)), {}),
+    projectlists: types.optional(types.map(types.late(() => ProjectListModel)), {}),
+    leaves: types.optional(types.map(types.late(() => LeaveModel)), {}),
+    tickets: types.optional(types.map(types.late(() => TicketModel)), {}),
+    checkins: types.optional(types.map(types.late(() => CheckInModel)), {}),
     simples: types.optional(types.map(types.late(() => SimpleModel)), {})
   })
   .actions(self => ({
@@ -56,26 +52,6 @@ export const RootStoreBase = MSTGQLStore
         ${typeof resultSelector === "function" ? resultSelector(new UserModelSelector()).toString() : resultSelector}
       } }`, variables, options)
     },
-    queryPost(variables: { _id: string }, resultSelector: string | ((qb: PostModelSelector) => PostModelSelector) = postModelPrimitives.toString(), options: QueryOptions = {}) {
-      return self.query<typeof PostModel.Type>(`query post($_id: ID!) { post(_id: $_id) {
-        ${typeof resultSelector === "function" ? resultSelector(new PostModelSelector()).toString() : resultSelector}
-      } }`, variables, options)
-    },
-    queryPosts(variables?: {  }, resultSelector: string | ((qb: PostModelSelector) => PostModelSelector) = postModelPrimitives.toString(), options: QueryOptions = {}) {
-      return self.query<typeof PostModel.Type[]>(`query posts { posts {
-        ${typeof resultSelector === "function" ? resultSelector(new PostModelSelector()).toString() : resultSelector}
-      } }`, variables, options)
-    },
-    queryComment(variables: { _id: string }, resultSelector: string | ((qb: CommentModelSelector) => CommentModelSelector) = commentModelPrimitives.toString(), options: QueryOptions = {}) {
-      return self.query<typeof CommentModel.Type[]>(`query comment($_id: ID!) { comment(_id: $_id) {
-        ${typeof resultSelector === "function" ? resultSelector(new CommentModelSelector()).toString() : resultSelector}
-      } }`, variables, options)
-    },
-    queryComments(variables?: {  }, resultSelector: string | ((qb: CommentModelSelector) => CommentModelSelector) = commentModelPrimitives.toString(), options: QueryOptions = {}) {
-      return self.query<typeof CommentModel.Type[]>(`query comments { comments {
-        ${typeof resultSelector === "function" ? resultSelector(new CommentModelSelector()).toString() : resultSelector}
-      } }`, variables, options)
-    },
     queryListtest(variables: { _id: string }, resultSelector: string | ((qb: ListTestModelSelector) => ListTestModelSelector) = listTestModelPrimitives.toString(), options: QueryOptions = {}) {
       return self.query<typeof ListTestModel.Type>(`query listtest($_id: ID!) { listtest(_id: $_id) {
         ${typeof resultSelector === "function" ? resultSelector(new ListTestModelSelector()).toString() : resultSelector}
@@ -86,8 +62,13 @@ export const RootStoreBase = MSTGQLStore
         ${typeof resultSelector === "function" ? resultSelector(new ListTestModelSelector()).toString() : resultSelector}
       } }`, variables, options)
     },
-    queryActivitylog(variables: { _id: string }, resultSelector: string | ((qb: ActivityLogModelSelector) => ActivityLogModelSelector) = activityLogModelPrimitives.toString(), options: QueryOptions = {}) {
-      return self.query<typeof ActivityLogModel.Type>(`query activitylog($_id: ID!) { activitylog(_id: $_id) {
+    queryActivitylog(variables: { id: string }, resultSelector: string | ((qb: ActivityLogModelSelector) => ActivityLogModelSelector) = activityLogModelPrimitives.toString(), options: QueryOptions = {}) {
+      return self.query<typeof ActivityLogModel.Type>(`query activitylog($id: ID!) { activitylog(id: $id) {
+        ${typeof resultSelector === "function" ? resultSelector(new ActivityLogModelSelector()).toString() : resultSelector}
+      } }`, variables, options)
+    },
+    queryFindTicketID(variables: { ticketID: string }, resultSelector: string | ((qb: ActivityLogModelSelector) => ActivityLogModelSelector) = activityLogModelPrimitives.toString(), options: QueryOptions = {}) {
+      return self.query<typeof ActivityLogModel.Type[]>(`query findTicketID($ticketID: String!) { findTicketID(ticketID: $ticketID) {
         ${typeof resultSelector === "function" ? resultSelector(new ActivityLogModelSelector()).toString() : resultSelector}
       } }`, variables, options)
     },
@@ -96,8 +77,8 @@ export const RootStoreBase = MSTGQLStore
         ${typeof resultSelector === "function" ? resultSelector(new ActivityLogModelSelector()).toString() : resultSelector}
       } }`, variables, options)
     },
-    queryProj(variables: { _id: string }, resultSelector: string | ((qb: ProjectListModelSelector) => ProjectListModelSelector) = projectListModelPrimitives.toString(), options: QueryOptions = {}) {
-      return self.query<typeof ProjectListModel.Type>(`query proj($_id: ID!) { proj(_id: $_id) {
+    queryProj(variables: { id: string }, resultSelector: string | ((qb: ProjectListModelSelector) => ProjectListModelSelector) = projectListModelPrimitives.toString(), options: QueryOptions = {}) {
+      return self.query<typeof ProjectListModel.Type>(`query proj($id: ID!) { proj(id: $id) {
         ${typeof resultSelector === "function" ? resultSelector(new ProjectListModelSelector()).toString() : resultSelector}
       } }`, variables, options)
     },
@@ -106,8 +87,8 @@ export const RootStoreBase = MSTGQLStore
         ${typeof resultSelector === "function" ? resultSelector(new ProjectListModelSelector()).toString() : resultSelector}
       } }`, variables, options)
     },
-    queryLeave(variables: { _id: string }, resultSelector: string | ((qb: LeaveModelSelector) => LeaveModelSelector) = leaveModelPrimitives.toString(), options: QueryOptions = {}) {
-      return self.query<typeof LeaveModel.Type>(`query leave($_id: ID!) { leave(_id: $_id) {
+    queryLeave(variables: { id: string }, resultSelector: string | ((qb: LeaveModelSelector) => LeaveModelSelector) = leaveModelPrimitives.toString(), options: QueryOptions = {}) {
+      return self.query<typeof LeaveModel.Type>(`query leave($id: ID!) { leave(id: $id) {
         ${typeof resultSelector === "function" ? resultSelector(new LeaveModelSelector()).toString() : resultSelector}
       } }`, variables, options)
     },
@@ -116,8 +97,8 @@ export const RootStoreBase = MSTGQLStore
         ${typeof resultSelector === "function" ? resultSelector(new LeaveModelSelector()).toString() : resultSelector}
       } }`, variables, options)
     },
-    queryTicket(variables: { _id: string }, resultSelector: string | ((qb: TicketModelSelector) => TicketModelSelector) = ticketModelPrimitives.toString(), options: QueryOptions = {}) {
-      return self.query<typeof TicketModel.Type>(`query ticket($_id: ID!) { ticket(_id: $_id) {
+    queryTicket(variables: { id: string }, resultSelector: string | ((qb: TicketModelSelector) => TicketModelSelector) = ticketModelPrimitives.toString(), options: QueryOptions = {}) {
+      return self.query<typeof TicketModel.Type>(`query ticket($id: ID!) { ticket(id: $id) {
         ${typeof resultSelector === "function" ? resultSelector(new TicketModelSelector()).toString() : resultSelector}
       } }`, variables, options)
     },
@@ -126,8 +107,8 @@ export const RootStoreBase = MSTGQLStore
         ${typeof resultSelector === "function" ? resultSelector(new TicketModelSelector()).toString() : resultSelector}
       } }`, variables, options)
     },
-    queryCheckin(variables: { _id: string }, resultSelector: string | ((qb: CheckInModelSelector) => CheckInModelSelector) = checkInModelPrimitives.toString(), options: QueryOptions = {}) {
-      return self.query<typeof CheckInModel.Type>(`query checkin($_id: ID!) { checkin(_id: $_id) {
+    queryCheckin(variables: { id: string }, resultSelector: string | ((qb: CheckInModelSelector) => CheckInModelSelector) = checkInModelPrimitives.toString(), options: QueryOptions = {}) {
+      return self.query<typeof CheckInModel.Type>(`query checkin($id: ID!) { checkin(id: $id) {
         ${typeof resultSelector === "function" ? resultSelector(new CheckInModelSelector()).toString() : resultSelector}
       } }`, variables, options)
     },
@@ -171,36 +152,6 @@ export const RootStoreBase = MSTGQLStore
         ${typeof resultSelector === "function" ? resultSelector(new UserModelSelector()).toString() : resultSelector}
       } }`, variables, optimisticUpdate)
     },
-    mutateCreatePost(variables: { post: CreatePostInput | undefined }, resultSelector: string | ((qb: PostModelSelector) => PostModelSelector) = postModelPrimitives.toString(), optimisticUpdate?: () => void) {
-      return self.mutate<typeof PostModel.Type>(`mutation createPost($post: CreatePostInput) { createPost(post: $post) {
-        ${typeof resultSelector === "function" ? resultSelector(new PostModelSelector()).toString() : resultSelector}
-      } }`, variables, optimisticUpdate)
-    },
-    mutateUpdatePost(variables: { _id: string, post: UpdatePostInput | undefined }, resultSelector: string | ((qb: PostModelSelector) => PostModelSelector) = postModelPrimitives.toString(), optimisticUpdate?: () => void) {
-      return self.mutate<typeof PostModel.Type>(`mutation updatePost($_id: ID!, $post: UpdatePostInput) { updatePost(_id: $_id, post: $post) {
-        ${typeof resultSelector === "function" ? resultSelector(new PostModelSelector()).toString() : resultSelector}
-      } }`, variables, optimisticUpdate)
-    },
-    mutateDeletePost(variables: { _id: string }, resultSelector: string | ((qb: PostModelSelector) => PostModelSelector) = postModelPrimitives.toString(), optimisticUpdate?: () => void) {
-      return self.mutate<typeof PostModel.Type>(`mutation deletePost($_id: ID!) { deletePost(_id: $_id) {
-        ${typeof resultSelector === "function" ? resultSelector(new PostModelSelector()).toString() : resultSelector}
-      } }`, variables, optimisticUpdate)
-    },
-    mutateCreateComment(variables: { comment: CreateCommentInput }, resultSelector: string | ((qb: CommentModelSelector) => CommentModelSelector) = commentModelPrimitives.toString(), optimisticUpdate?: () => void) {
-      return self.mutate<typeof CommentModel.Type>(`mutation createComment($comment: CreateCommentInput!) { createComment(comment: $comment) {
-        ${typeof resultSelector === "function" ? resultSelector(new CommentModelSelector()).toString() : resultSelector}
-      } }`, variables, optimisticUpdate)
-    },
-    mutateUpdateComment(variables: { _id: string, comment: UpdateCommentInput | undefined }, resultSelector: string | ((qb: CommentModelSelector) => CommentModelSelector) = commentModelPrimitives.toString(), optimisticUpdate?: () => void) {
-      return self.mutate<typeof CommentModel.Type>(`mutation updateComment($_id: ID!, $comment: UpdateCommentInput) { updateComment(_id: $_id, comment: $comment) {
-        ${typeof resultSelector === "function" ? resultSelector(new CommentModelSelector()).toString() : resultSelector}
-      } }`, variables, optimisticUpdate)
-    },
-    mutateDeleteComment(variables: { _id: string }, resultSelector: string | ((qb: CommentModelSelector) => CommentModelSelector) = commentModelPrimitives.toString(), optimisticUpdate?: () => void) {
-      return self.mutate<typeof CommentModel.Type>(`mutation deleteComment($_id: ID!) { deleteComment(_id: $_id) {
-        ${typeof resultSelector === "function" ? resultSelector(new CommentModelSelector()).toString() : resultSelector}
-      } }`, variables, optimisticUpdate)
-    },
     mutateCreateItemTest(variables: { listitem: TestItemInput | undefined }, resultSelector: string | ((qb: ListTestModelSelector) => ListTestModelSelector) = listTestModelPrimitives.toString(), optimisticUpdate?: () => void) {
       return self.mutate<typeof ListTestModel.Type>(`mutation createItemTest($listitem: TestItemInput) { createItemTest(listitem: $listitem) {
         ${typeof resultSelector === "function" ? resultSelector(new ListTestModelSelector()).toString() : resultSelector}
@@ -211,13 +162,13 @@ export const RootStoreBase = MSTGQLStore
         ${typeof resultSelector === "function" ? resultSelector(new ActivityLogModelSelector()).toString() : resultSelector}
       } }`, variables, optimisticUpdate)
     },
-    mutateUpdateLog(variables: { _id: string, activitylog: UpdateLogInput | undefined }, resultSelector: string | ((qb: ActivityLogModelSelector) => ActivityLogModelSelector) = activityLogModelPrimitives.toString(), optimisticUpdate?: () => void) {
-      return self.mutate<typeof ActivityLogModel.Type>(`mutation updateLog($_id: ID!, $activitylog: UpdateLogInput) { updateLog(_id: $_id, activitylog: $activitylog) {
+    mutateUpdateLog(variables: { id: string, activitylog: UpdateLogInput | undefined }, resultSelector: string | ((qb: ActivityLogModelSelector) => ActivityLogModelSelector) = activityLogModelPrimitives.toString(), optimisticUpdate?: () => void) {
+      return self.mutate<typeof ActivityLogModel.Type>(`mutation updateLog($id: ID!, $activitylog: UpdateLogInput) { updateLog(id: $id, activitylog: $activitylog) {
         ${typeof resultSelector === "function" ? resultSelector(new ActivityLogModelSelector()).toString() : resultSelector}
       } }`, variables, optimisticUpdate)
     },
-    mutateDeleteLog(variables: { _id: string }, resultSelector: string | ((qb: ActivityLogModelSelector) => ActivityLogModelSelector) = activityLogModelPrimitives.toString(), optimisticUpdate?: () => void) {
-      return self.mutate<typeof ActivityLogModel.Type>(`mutation deleteLog($_id: ID!) { deleteLog(_id: $_id) {
+    mutateDeleteLog(variables: { id: string }, resultSelector: string | ((qb: ActivityLogModelSelector) => ActivityLogModelSelector) = activityLogModelPrimitives.toString(), optimisticUpdate?: () => void) {
+      return self.mutate<typeof ActivityLogModel.Type>(`mutation deleteLog($id: ID!) { deleteLog(id: $id) {
         ${typeof resultSelector === "function" ? resultSelector(new ActivityLogModelSelector()).toString() : resultSelector}
       } }`, variables, optimisticUpdate)
     },
@@ -226,13 +177,13 @@ export const RootStoreBase = MSTGQLStore
         ${typeof resultSelector === "function" ? resultSelector(new ProjectListModelSelector()).toString() : resultSelector}
       } }`, variables, optimisticUpdate)
     },
-    mutateUpdateProject(variables: { _id: string, project: ProjectInput | undefined }, resultSelector: string | ((qb: ProjectListModelSelector) => ProjectListModelSelector) = projectListModelPrimitives.toString(), optimisticUpdate?: () => void) {
-      return self.mutate<typeof ProjectListModel.Type>(`mutation updateProject($_id: ID!, $project: ProjectInput) { updateProject(_id: $_id, project: $project) {
+    mutateUpdateProject(variables: { id: string, project: ProjectInput | undefined }, resultSelector: string | ((qb: ProjectListModelSelector) => ProjectListModelSelector) = projectListModelPrimitives.toString(), optimisticUpdate?: () => void) {
+      return self.mutate<typeof ProjectListModel.Type>(`mutation updateProject($id: ID!, $project: ProjectInput) { updateProject(id: $id, project: $project) {
         ${typeof resultSelector === "function" ? resultSelector(new ProjectListModelSelector()).toString() : resultSelector}
       } }`, variables, optimisticUpdate)
     },
-    mutateDeleteProject(variables: { _id: string }, resultSelector: string | ((qb: ProjectListModelSelector) => ProjectListModelSelector) = projectListModelPrimitives.toString(), optimisticUpdate?: () => void) {
-      return self.mutate<typeof ProjectListModel.Type>(`mutation deleteProject($_id: ID!) { deleteProject(_id: $_id) {
+    mutateDeleteProject(variables: { id: string }, resultSelector: string | ((qb: ProjectListModelSelector) => ProjectListModelSelector) = projectListModelPrimitives.toString(), optimisticUpdate?: () => void) {
+      return self.mutate<typeof ProjectListModel.Type>(`mutation deleteProject($id: ID!) { deleteProject(id: $id) {
         ${typeof resultSelector === "function" ? resultSelector(new ProjectListModelSelector()).toString() : resultSelector}
       } }`, variables, optimisticUpdate)
     },
@@ -241,13 +192,13 @@ export const RootStoreBase = MSTGQLStore
         ${typeof resultSelector === "function" ? resultSelector(new LeaveModelSelector()).toString() : resultSelector}
       } }`, variables, optimisticUpdate)
     },
-    mutateUpdateLeave(variables: { _id: string, leave: UpdateLeavetInput | undefined }, resultSelector: string | ((qb: LeaveModelSelector) => LeaveModelSelector) = leaveModelPrimitives.toString(), optimisticUpdate?: () => void) {
-      return self.mutate<typeof LeaveModel.Type>(`mutation updateLeave($_id: ID!, $leave: UpdateLeavetInput) { updateLeave(_id: $_id, leave: $leave) {
+    mutateUpdateLeave(variables: { id: string, leave: UpdateLeavetInput | undefined }, resultSelector: string | ((qb: LeaveModelSelector) => LeaveModelSelector) = leaveModelPrimitives.toString(), optimisticUpdate?: () => void) {
+      return self.mutate<typeof LeaveModel.Type>(`mutation updateLeave($id: ID!, $leave: UpdateLeavetInput) { updateLeave(id: $id, leave: $leave) {
         ${typeof resultSelector === "function" ? resultSelector(new LeaveModelSelector()).toString() : resultSelector}
       } }`, variables, optimisticUpdate)
     },
-    mutateDeleteLeave(variables: { _id: string }, resultSelector: string | ((qb: LeaveModelSelector) => LeaveModelSelector) = leaveModelPrimitives.toString(), optimisticUpdate?: () => void) {
-      return self.mutate<typeof LeaveModel.Type>(`mutation deleteLeave($_id: ID!) { deleteLeave(_id: $_id) {
+    mutateDeleteLeave(variables: { id: string }, resultSelector: string | ((qb: LeaveModelSelector) => LeaveModelSelector) = leaveModelPrimitives.toString(), optimisticUpdate?: () => void) {
+      return self.mutate<typeof LeaveModel.Type>(`mutation deleteLeave($id: ID!) { deleteLeave(id: $id) {
         ${typeof resultSelector === "function" ? resultSelector(new LeaveModelSelector()).toString() : resultSelector}
       } }`, variables, optimisticUpdate)
     },
@@ -256,13 +207,13 @@ export const RootStoreBase = MSTGQLStore
         ${typeof resultSelector === "function" ? resultSelector(new TicketModelSelector()).toString() : resultSelector}
       } }`, variables, optimisticUpdate)
     },
-    mutateUpdateTicket(variables: { _id: string, ticket: UpdateTicketInput | undefined }, resultSelector: string | ((qb: TicketModelSelector) => TicketModelSelector) = ticketModelPrimitives.toString(), optimisticUpdate?: () => void) {
-      return self.mutate<typeof TicketModel.Type>(`mutation updateTicket($_id: ID!, $ticket: UpdateTicketInput) { updateTicket(_id: $_id, ticket: $ticket) {
+    mutateUpdateTicket(variables: { id: string, ticket: UpdateTicketInput | undefined }, resultSelector: string | ((qb: TicketModelSelector) => TicketModelSelector) = ticketModelPrimitives.toString(), optimisticUpdate?: () => void) {
+      return self.mutate<typeof TicketModel.Type>(`mutation updateTicket($id: ID!, $ticket: UpdateTicketInput) { updateTicket(id: $id, ticket: $ticket) {
         ${typeof resultSelector === "function" ? resultSelector(new TicketModelSelector()).toString() : resultSelector}
       } }`, variables, optimisticUpdate)
     },
-    mutateDeleteTicket(variables: { _id: string }, resultSelector: string | ((qb: TicketModelSelector) => TicketModelSelector) = ticketModelPrimitives.toString(), optimisticUpdate?: () => void) {
-      return self.mutate<typeof TicketModel.Type>(`mutation deleteTicket($_id: ID!) { deleteTicket(_id: $_id) {
+    mutateDeleteTicket(variables: { id: string }, resultSelector: string | ((qb: TicketModelSelector) => TicketModelSelector) = ticketModelPrimitives.toString(), optimisticUpdate?: () => void) {
+      return self.mutate<typeof TicketModel.Type>(`mutation deleteTicket($id: ID!) { deleteTicket(id: $id) {
         ${typeof resultSelector === "function" ? resultSelector(new TicketModelSelector()).toString() : resultSelector}
       } }`, variables, optimisticUpdate)
     },
@@ -276,19 +227,14 @@ export const RootStoreBase = MSTGQLStore
         ${typeof resultSelector === "function" ? resultSelector(new CheckInModelSelector()).toString() : resultSelector}
       } }`, variables, optimisticUpdate)
     },
-    subscribePost(variables?: {  }, resultSelector: string | ((qb: PostSubscriptionPayloadModelSelector) => PostSubscriptionPayloadModelSelector) = postSubscriptionPayloadModelPrimitives.toString(), onData?: (item: any) => void) {
-      return self.subscribe<typeof PostSubscriptionPayloadModel.Type>(`subscription post { post {
-        ${typeof resultSelector === "function" ? resultSelector(new PostSubscriptionPayloadModelSelector()).toString() : resultSelector}
-      } }`, variables, onData)
-    },
-    subscribeComment(variables: { postId: string }, resultSelector: string | ((qb: CommentSubscriptionPayloadModelSelector) => CommentSubscriptionPayloadModelSelector) = commentSubscriptionPayloadModelPrimitives.toString(), onData?: (item: any) => void) {
-      return self.subscribe<typeof CommentSubscriptionPayloadModel.Type>(`subscription comment($postId: ID!) { comment(postId: $postId) {
-        ${typeof resultSelector === "function" ? resultSelector(new CommentSubscriptionPayloadModelSelector()).toString() : resultSelector}
-      } }`, variables, onData)
-    },
     subscribeNewActivityLog(variables?: {  }, resultSelector: string | ((qb: ActivityLogModelSelector) => ActivityLogModelSelector) = activityLogModelPrimitives.toString(), onData?: (item: any) => void) {
       return self.subscribe<typeof ActivityLogModel.Type>(`subscription newActivityLog { newActivityLog {
         ${typeof resultSelector === "function" ? resultSelector(new ActivityLogModelSelector()).toString() : resultSelector}
+      } }`, variables, onData)
+    },
+    subscribeNewTicket(variables?: {  }, resultSelector: string | ((qb: TicketModelSelector) => TicketModelSelector) = ticketModelPrimitives.toString(), onData?: (item: any) => void) {
+      return self.subscribe<typeof TicketModel.Type>(`subscription newTicket { newTicket {
+        ${typeof resultSelector === "function" ? resultSelector(new TicketModelSelector()).toString() : resultSelector}
       } }`, variables, onData)
     },
   }))

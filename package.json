@@ -12,11 +12,12 @@
     "graphql-tag": "^2.10.1",
     "mobx": "^5.13.0",
     "mobx-react": "^6.1.1",
-    "mobx-state-tree": "^3.14.0",
+    "mobx-state-tree": "^3.14.1",
     "mst-gql": "^0.3.3",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "react-native": "0.59.9"
+    "react-native": "0.59.9",
+    "subscriptions-transport-ws": "^0.9.16"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",

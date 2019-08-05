@@ -15,7 +15,7 @@ export const LeaveModelBase = MSTGQLObject
   .named('Leave')
   .props({
     __typename: types.optional(types.literal("Leave"), "Leave"),
-    _id: types.identifier,
+    id: types.identifier,
     projname: types.maybeNull(types.string),
     leave_start: types.maybeNull(types.string),
     leave_end: types.maybeNull(types.string),
@@ -34,7 +34,7 @@ export const LeaveModelBase = MSTGQLObject
   }))
 
 export class LeaveModelSelector extends QueryBuilder {
-  get _id() { return this.__attr(`_id`) }
+  get id() { return this.__attr(`id`) }
   get projname() { return this.__attr(`projname`) }
   get leave_start() { return this.__attr(`leave_start`) }
   get leave_end() { return this.__attr(`leave_end`) }
@@ -50,4 +50,4 @@ export function selectFromLeave() {
   return new LeaveModelSelector()
 }
 
-export const leaveModelPrimitives = selectFromLeave()._id.projname.leave_start.leave_end.options.leave_type.with_pay.remarks.status.work_hour.date_created
+export const leaveModelPrimitives = selectFromLeave().projname.leave_start.leave_end.options.leave_type.with_pay.remarks.status.work_hour.date_created
