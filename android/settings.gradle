@@ -1,0 +1,3 @@
+rootProject.name = 'MSTGQLTGround599'
+
+include ':app'
